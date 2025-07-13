@@ -1,0 +1,40 @@
+stages:
+  - init
+  - plan
+  - apply
+
+variables:
+  TF_ROOT: "."
+
+# 1. Terraform Init
+init:
+  stage: init
+  image: hashicorp/terraform:1.8.5
+  script:
+    - cd $TF_ROOT
+    - terraform init -input=false
+
+# 2. Terraform Plan
+plan:
+  stage: plan
+  image: hashicorp/terraform:1.8.5
+  script:
+    - cd $TF_ROOT
+    - terraform plan -out=tfplan -input=false
+    - terraform show tfplan
+  artifacts:
+    paths:
+      - $TF_ROOT/tfplan
+    expire_in: 1 hour
+
+# 3. Terraform Apply (Manual Approval)
+apply:
+  stage: apply
+  image: hashicorp/terraform:1.8.5
+  script:
+    - cd $TF_ROOT
+    - terraform apply -input=false tfplan
+  dependencies:
+    - plan
+  when: manual   # 👈 Manual approval required
+  allow_failure: false
