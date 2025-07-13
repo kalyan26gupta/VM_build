@@ -1,0 +1,1 @@
+admin_password = "P@ssw0rd1234!"  # You can override this securely in CI/CD
